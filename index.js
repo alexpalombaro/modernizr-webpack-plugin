@@ -1,38 +1,38 @@
-import {build} from 'modernizr';
+var build = require('modernizr').build;
 
-import CachedSource from 'webpack-core/lib/CachedSource';
-import ConcatSource from 'webpack-core/lib/ConcatSource';
+var CachedSource = require('webpack-core/lib/CachedSource');
+var ConcatSource = require('webpack-core/lib/ConcatSource');
 
-import uglifyJs from 'uglify-js';
-import invariant from 'invariant';
+var uglifyJs = require('uglify-js');
+var invariant = require('invariant');
 
-class ModernizerPlugin {
+var ModernizerPlugin = function (options) {
+  this.options = options || {};
+};
 
-  constructor(options = {}) {
-    this.options = options;
-  }
+ModernizerPlugin.prototype.apply = function (compiler) {
 
-  apply = (compiler) => {
-    compiler.plugin('emit', (compilation, cb) => {
+  var _self = this;
 
-      build(this.options, (output) => {
-        let source = new ConcatSource();
+  compiler.plugin('emit', function (compilation, cb) {
 
-        if (this.options.uglify) {
-          let parsed = this.options.uglify === 'object' ? this.options.uglify : {};
-          let options = Object.assign({}, parsed, {fromString: true});
-          output = uglifyJs.minify(output, options).code;
-        }
+    build(_self.options, function (output) {
+      var source = new ConcatSource();
 
-        source.add(output);
+      if (_self.options.uglify) {
+        var parsed = _self.options.uglify === 'object' ? _self.options.uglify : {};
+        var options = Object.assign({}, parsed, {fromString: true});
+        output = uglifyJs.minify(output, options).code;
+      }
 
-        let filename = this.options.filename || 'modernizr-bundle.js';
-        compilation.assets[filename] = new CachedSource(source);
+      source.add(output);
 
-        cb();
-      })
+      var filename = _self.options.filename || 'modernizr-bundle.js';
+      compilation.assets[filename] = new CachedSource(source);
+
+      cb();
     })
-  }
-}
+  })
+};
 
-export default ModernizerPlugin
+module.exports = ModernizerPlugin;

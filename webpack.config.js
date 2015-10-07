@@ -1,5 +1,3 @@
-require('babel/register');
-
 var ModernizrPlugin = require('./index');
 var path = require('path');
 
