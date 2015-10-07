@@ -1,0 +1,18 @@
+## NodeJs
+node_modules
+
+## Build
+dist
+*.log
+.DS_STORE
+
+### JetBrains template
+*.iml
+
+## Directory-based project format:
+.idea/
+.tmp/
+
+## Babel output files
+*-compiled.js
+*-compiled.js.map
