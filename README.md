@@ -4,7 +4,7 @@ Generate a custom modernizr build during webpack compile
 
 Tasks to be complete for beta version
 
-- [ ] Integrate with html-webpack-plugin (name hashing and script tags)
+- [x] Integrate with html-webpack-plugin (name hashing and script tags)
 - [ ] Minify via NODE_ENV and/or options param 
 - [ ] Write tests 
 - [ ] Write documentation

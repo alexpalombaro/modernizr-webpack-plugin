@@ -1,21 +1,25 @@
+/* eslint-disable no-process-env */
 var CachedSource = require('webpack-core/lib/CachedSource');
 var ConcatSource = require('webpack-core/lib/ConcatSource');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 var uglifyJs = require('uglify-js');
 var build = require('modernizr').build;
+var assign = require('object-assign');
 
+process.env.NODE_ENV = (process.env.NODE_ENV || 'development').trim();
+
+/**
+ * es5 class
+ * @param options
+ * @constructor
+ */
 function ModernizerPlugin(options) {
-  this.options = options || {};
-
-  // defaults
-  if (typeof this.options.filename === 'undefined') {
-    this.options.filename = 'modernizr-bundle.js';
-  }
-
-  if (typeof this.options.htmlWebPackPluginIntegration == 'undefined') {
-    this.options.htmlWebPackPluginIntegration = true;
-  }
+  this.options = assign({}, {
+    filename: 'modernizr-bundle.js',
+    htmlWebPackPluginIntegration: true,
+    minify: !(process.env.NODE_ENV === 'development')
+  }, options);
 }
 
 ModernizerPlugin.prototype._htmlWebpackPluginInject = function (plugin, filename, hash) {
@@ -31,6 +35,11 @@ ModernizerPlugin.prototype._htmlWebpackPluginInject = function (plugin, filename
     };
     return result;
   };
+};
+
+ModernizerPlugin.prototype._minifySource = function (source, options) {
+  var uglifyOptions = Object.assign({}, options, {fromString: true});
+  return uglifyJs.minify(source, uglifyOptions).code;
 };
 
 ModernizerPlugin.prototype.apply = function (compiler) {
@@ -51,11 +60,8 @@ ModernizerPlugin.prototype.apply = function (compiler) {
   compiler.plugin('emit', function (compilation, cb) {
     build(self.options, function (output) {
       var source = new ConcatSource();
-
-      if (self.options.uglify) {
-        var parsed = self.options.uglify === 'object' ? self.options.uglify : {};
-        var options = Object.assign({}, parsed, {fromString: true});
-        output = uglifyJs.minify(output, options).code;
+      if (self.options.minify) {
+        output = self._minifySource(output, self.options.minify);
       }
 
       source.add(output);

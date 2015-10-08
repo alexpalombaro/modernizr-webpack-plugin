@@ -5,3 +5,7 @@ class TestingClass {
 }
 
 export default TestingClass;
+
+(function (window) {
+  window.TestingClass = new TestingClass();
+})(window);
