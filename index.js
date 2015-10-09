@@ -22,17 +22,19 @@ function ModernizerPlugin(options) {
   }, options);
 }
 
-ModernizerPlugin.prototype._htmlWebpackPluginInject = function (plugin, filename, hash) {
+ModernizerPlugin.prototype._htmlWebpackPluginInject = function (plugin, filename, hash, filesize) {
   var htmlWebPackPluginAssets = plugin.htmlWebpackPluginAssets;
+  var oFilename = plugin.options.hash ? plugin.appendHash(filename, hash || '') : filename;
   plugin.htmlWebpackPluginAssets = function () {
     var result = htmlWebPackPluginAssets.apply(plugin, arguments);
-    var chunkName = filename.replace(/\.js/, '');
-    if (plugin.options.hash) {
-      filename = plugin.appendHash(filename, hash || '');
-    }
-    result.chunks[chunkName] = {
-      entry: filename
+    var chunk = {};
+    chunk[filename] = {
+      entry: oFilename,
+      css: [],
+      size: filesize || 0
     };
+    // get html-webpack-plugin to output modernizr chunk first
+    result.chunks = assign({}, chunk, result.chunks);
     return result;
   };
 };
@@ -46,31 +48,33 @@ ModernizerPlugin.prototype.apply = function (compiler) {
   var self = this;
 
   compiler.plugin('after-compile', function (compilation, cb) {
-    var stats = compilation.getStats();
-    if (self.options.htmlWebPackPluginIntegration) {
-      compiler.options.plugins.forEach(function (plugin) {
-        if (plugin instanceof HtmlWebpackPlugin) {
-          self._htmlWebpackPluginInject(plugin, self.options.filename, stats.hash)
-        }
-      })
-    }
-    cb();
-  });
-
-  compiler.plugin('emit', function (compilation, cb) {
     build(self.options, function (output) {
-      var source = new ConcatSource();
       if (self.options.minify) {
         output = self._minifySource(output, self.options.minify);
       }
-
-      source.add(output);
-
-      var filename = self.options.filename;
-      compilation.assets[filename] = new CachedSource(source);
-
+      self.modernizrOutput = output;
+      var stats = compilation.getStats().toJson();
+      if (self.options.htmlWebPackPluginIntegration) {
+        compiler.options.plugins.forEach(function (plugin) {
+          if (plugin instanceof HtmlWebpackPlugin) {
+            self._htmlWebpackPluginInject(plugin, self.options.filename,
+              stats.hash, self.modernizrOutput.length)
+          }
+        })
+      }
       cb();
     })
+  });
+
+  compiler.plugin('emit', function (compilation, cb) {
+    var source = new ConcatSource();
+
+    source.add(self.modernizrOutput);
+
+    var filename = self.options.filename;
+    compilation.assets[filename] = new CachedSource(source);
+
+    cb();
   })
 };
 
