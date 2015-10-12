@@ -4,7 +4,7 @@
   "description": "Create a custom Modernizr build during webpack compile",
   "main": "index.js",
   "scripts": {
-    "test": "karma start"
+    "test": "node_modules/.bin/karma start"
   },
   "repository": {
     "type": "git",

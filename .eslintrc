@@ -180,6 +180,6 @@
 
     "max-depth": [2, 3],
     "max-len": [2, 120, 2],
-    "max-params": [2, 3]
+    "max-params": 0
   }
 }

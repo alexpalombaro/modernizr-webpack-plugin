@@ -11,10 +11,13 @@ process.env.NODE_ENV = (process.env.NODE_ENV || 'development').trim();
 
 /**
  * es5 class
- * @param options
+ * @param {Object} [options] Refer to Modernizr for available options
+ * @param {string} [options.filename=modernizr-bundle.js] The output file name including extension
+ * @param {boolean} [options.htmlWebPackPluginIntegration=true] Integrate into html-webpack-plugin if begin used
+ * @param {boolean} [options.minify] Defaults to NODE_ENV
  * @constructor
  */
-function ModernizerPlugin(options) {
+function ModernizrPlugin(options) {
   this.options = assign({}, {
     filename: 'modernizr-bundle.js',
     htmlWebPackPluginIntegration: true,
@@ -22,7 +25,7 @@ function ModernizerPlugin(options) {
   }, options);
 }
 
-ModernizerPlugin.prototype._htmlWebpackPluginInject = function (plugin, filename, hash, filesize) {
+ModernizrPlugin.prototype._htmlWebpackPluginInject = function (plugin, filename, hash, filesize) {
   var htmlWebPackPluginAssets = plugin.htmlWebpackPluginAssets;
   var oFilename = plugin.options.hash ? plugin.appendHash(filename, hash || '') : filename;
   plugin.htmlWebpackPluginAssets = function () {
@@ -39,12 +42,12 @@ ModernizerPlugin.prototype._htmlWebpackPluginInject = function (plugin, filename
   };
 };
 
-ModernizerPlugin.prototype._minifySource = function (source, options) {
+ModernizrPlugin.prototype._minifySource = function (source, options) {
   var uglifyOptions = Object.assign({}, options, {fromString: true});
   return uglifyJs.minify(source, uglifyOptions).code;
 };
 
-ModernizerPlugin.prototype.apply = function (compiler) {
+ModernizrPlugin.prototype.apply = function (compiler) {
   var self = this;
 
   compiler.plugin('after-compile', function (compilation, cb) {
@@ -78,4 +81,4 @@ ModernizerPlugin.prototype.apply = function (compiler) {
   })
 };
 
-module.exports = ModernizerPlugin;
+module.exports = ModernizrPlugin;
