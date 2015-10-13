@@ -6,6 +6,4 @@ node_js:
   - "0.11"
   - "node"
 env:
-  - NODE_ENV="production"
-install:
- - npm install --dev
+  - BUILD_ENV="travis"

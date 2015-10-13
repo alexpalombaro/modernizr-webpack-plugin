@@ -3,7 +3,7 @@
 var webpack = require('webpack');
 var webpackConfig = require('./webpack.config');
 
-var debug = (process.env.NODE_ENV !== 'production');
+var debug = !(process.env.NODE_ENV === 'production' || process.env.BUILD_ENV === 'travis');
 
 var KARMA_ENTRY = './karma.entry.js';
 var preprocessors = {};
@@ -18,7 +18,7 @@ function makeDefaultConfig() {
     frameworks: ['mocha', 'sinon-chai'],
     preprocessors: preprocessors,
     reporters: ['progress'],
-    browsers: ['PhantomJS', 'Chrome'],
+    browsers: (debug ? ['PhantomJS', 'Chrome'] : ['PhantomJS']),
     webpack: {
       plugins: webpackConfig.plugins
     },
