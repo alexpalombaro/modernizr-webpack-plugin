@@ -1,6 +1,14 @@
 /* eslint-env jasmine, mocha */
-describe('karma test runner', function () {
-  it('Should log a message to console', () => {
-    console.log('Hello Karma test runner.');
-  })
+
+var config = require('./feature-detects');
+
+describe('[ModernizrPlugin]', function () {
+
+  it('Should contain an instance of Modernizr', function () {
+    expect(window.Modernizr).to.be.an('object');
+  });
+
+  it('Should have feature-detects specified in bundle options', function () {
+    expect(window.Modernizr).to.have.all.keys(config);
+  });
 });

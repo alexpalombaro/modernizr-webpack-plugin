@@ -1,11 +1,17 @@
-class TestingClass {
-  constructor() {
-    console.log('Modernizer Plugin Testing Class Init');
+function _init() {
+  var output = 'Modernizr ' + (window && window.Modernizr ? 'available' : 'missing');
+  console.log(output);
+  if (document) {
+    var h1 = document.createElement('h1');
+    h1.style.color = 'red';
+    h1.innerHTML = output;
+    document.body.appendChild(h1);
   }
 }
 
-export default TestingClass;
-
-(function (window) {
-  window.TestingClass = new TestingClass();
+module = module.exports = (function TestingClass(window) {
+  if (window) {
+    var document = document || window.document;
+    document.readyState === 'complete' ? _init() : window.addEventListener('load', _init);
+  }
 }(window));

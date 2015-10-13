@@ -20,10 +20,7 @@ function makeDefaultConfig() {
     reporters: ['progress'],
     browsers: ['PhantomJS', 'Chrome'],
     webpack: {
-      plugins: webpackConfig.plugins,
-      module: {
-        loaders: webpackConfig.module.loaders
-      }
+      plugins: webpackConfig.plugins
     },
     webpackMiddleware: {
       noInfo: true
@@ -35,7 +32,7 @@ function makeDefaultConfig() {
       require('karma-phantomjs-launcher'),
       require('karma-chrome-launcher')
     ],
-    logLevel: 'DEBUG'
+    logLevel: 'INFO'
   };
 }
 

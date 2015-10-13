@@ -11,15 +11,6 @@ module.exports = {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist')
   },
-  module: {
-    loaders: [
-      {
-        test: /\.jsx?$/,
-        exclude: /node_modules/,
-        loaders: ['babel']
-      }
-    ]
-  },
   plugins: [
     new HtmlWebpackPlugin({hash: true}),
     new ModernizrPlugin()
