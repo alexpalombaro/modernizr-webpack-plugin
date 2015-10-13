@@ -4,7 +4,7 @@
   "description": "Create a custom Modernizr build during webpack compile",
   "main": "index.js",
   "scripts": {
-    "test": "node karma.runner.js"
+    "test": "node karma.runner.js --browsers PhantomJS"
   },
   "repository": {
     "type": "git",

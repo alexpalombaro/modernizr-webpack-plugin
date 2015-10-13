@@ -7,3 +7,5 @@ node_js:
   - "node"
 env:
   - NODE_ENV="production"
+install:
+ - npm install --dev
