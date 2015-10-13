@@ -25,7 +25,7 @@ function ModernizrPlugin(options) {
   this.options = assign({}, {
     filename: 'modernizr-bundle.js',
     htmlWebPackPluginIntegration: true,
-    minify: !(process.env.NODE_ENV === 'development')
+    minify: process.env.NODE_ENV === 'production'
   }, options);
 }
 
