@@ -3,6 +3,9 @@
   "version": "1.0.0-beta.1",
   "description": "Create a custom Modernizr build during webpack compile",
   "main": "index.js",
+  "files": [
+    "index.js"
+  ],
   "scripts": {
     "test": "node karma.runner.js"
   },
