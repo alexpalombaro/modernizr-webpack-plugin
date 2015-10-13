@@ -1,18 +1,68 @@
 # modernizr-webpack-plugin
 
-Generate a custom modernizr build during webpack compile
+Generate a custom modernizr build during webpack compile. 
+Includes support to integrate with [html-webpack-plugin](https://www.npmjs.com/package/html-webpack-plugin)
 
-## Tasks to be complete for beta version
+[![Build Status](https://travis-ci.org/alexpalombaro/modernizr-webpack-plugin.svg?branch=master)](https://travis-ci.org/alexpalombaro/modernizr-webpack-plugin)
 
-- [x] Integrate with html-webpack-plugin (name hashing and script tags)
-- [x] Minify via NODE_ENV and/or options param 
-- [x] Write tests 
-- [x] Write documentation
+## Install
 
-## Additional options to consider
+```sh
+$ npm install modernizr-webpack-plugin
+```
 
-- [ ] Option to inject into root application clusters for single file output??
-- [ ] Auto generate modernizr options from source code like customizr can 
-- [ ] Travis CI testing
+## Usage
 
-Help and / or suggestions are appreciated :thumbsup:
+Add the modernizr-webpack-plugin to your list of plugins in the webpack config
+
+```javascript
+// webpack.config.js
+var ModernizrWebpackPlugin = require('modernizr-webpack-plugin');
+
+module.exports = {
+  entry: 'app.js',
+  output: {
+    filename: 'app-bundle.js'
+  },
+  plugins: [
+    new ModernizrWebpackPlugin()
+  ]
+}
+```
+
+## Config
+
+ModernizrWebpackPlugin supports all the options available to [Modernizr](https://github.com/Modernizr/Modernizr/blob/master/lib/config-all.json).
+
+```javascript
+// webpack.config.js
+...
+var config = {
+  'feature-detects': [
+    'input',
+    'canvas',
+    'css/resize'
+  ]
+}
+
+module.exports = {
+  ...
+  plugins: [
+    // Output modernizr-bundle.js with 'input',  
+    // 'canvas' and 'css/resize' feature detects
+    new ModernizrPlugin(config)
+  ]
+}
+```
+
+Additional config options available
+
+```javascript
+
+var config = {
+  filename: 'custom-bundle-name.js' // custom filename (default: modernizr-bundle.js),
+  minify: true|false // (default: true if NODE_ENV is 'production'),
+  htmlWebPackPluginIntegration: true|false // (default: true)
+}
+
+```

@@ -18,6 +18,10 @@ process.env.NODE_ENV = (process.env.NODE_ENV || 'development').trim();
  * @constructor
  */
 function ModernizrPlugin(options) {
+  if (options.filename && !options.filename.match(/\.js$/)) {
+    options.filename = options.filename + '.js';
+  }
+
   this.options = assign({}, {
     filename: 'modernizr-bundle.js',
     htmlWebPackPluginIntegration: true,
