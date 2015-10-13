@@ -1,10 +1,10 @@
 {
   "name": "modernizr-webpack-plugin",
-  "version": "1.0.0-beta",
+  "version": "1.0.0-beta.1",
   "description": "Create a custom Modernizr build during webpack compile",
   "main": "index.js",
   "scripts": {
-    "test": "node karma.runner.js --browsers PhantomJS"
+    "test": "node karma.runner.js"
   },
   "repository": {
     "type": "git",
