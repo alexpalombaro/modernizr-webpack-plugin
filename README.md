@@ -55,13 +55,14 @@ module.exports = {
 }
 ```
 
-Additional config options available
+Additional config options available. 
+**Note:** For details of available minify options when using `object` please refer to [uglify-js](https://www.npmjs.com/package/uglify-js).
 
 ```javascript
 
 var config = {
   filename: 'custom-bundle-name.js' // custom filename (default: modernizr-bundle.js),
-  minify: true|false // (default: true if NODE_ENV is 'production'),
+  minify: true|false|object // (default: true if NODE_ENV is 'production'),
   htmlWebPackPluginIntegration: true|false // (default: true)
 }
 
