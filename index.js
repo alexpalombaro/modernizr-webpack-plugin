@@ -32,10 +32,9 @@ function ModernizrPlugin(options) {
   }, options);
 }
 
-ModernizrPlugin.prototype._htmlWebpackPluginInject = function (plugin, filename, hash, filesize, publicPath, asEntry) {
+ModernizrPlugin.prototype._htmlWebpackPluginInject = function (plugin, filename, hash, filesize, publicPath, asEntry, hashOfOutput) {
   var htmlWebPackPluginAssets = plugin.htmlWebpackPluginAssets;
-  var oFilename = plugin.options.hash ? plugin.appendHash(filename, hash || '') : filename;
-  oFilename = (publicPath ? publicPath + oFilename : oFilename);
+  var oFilename = this._createFilename(plugin, filename, publicPath, hash, hashOfOutput);
   plugin.htmlWebpackPluginAssets = function () {
     var result = htmlWebPackPluginAssets.apply(plugin, arguments);
     if (asEntry) {
@@ -48,7 +47,7 @@ ModernizrPlugin.prototype._htmlWebpackPluginInject = function (plugin, filename,
       // get html-webpack-plugin to output modernizr chunk first
       result.chunks = assign({}, chunk, result.chunks);
     } else {
-      result[path.basename(filename, '.js')] = oFilename;
+      result[path.basename(filename.replace(/-\[hash\]/, ''), '.js')] = oFilename;
     }
     return result;
   };
@@ -57,6 +56,20 @@ ModernizrPlugin.prototype._htmlWebpackPluginInject = function (plugin, filename,
 ModernizrPlugin.prototype._minifySource = function (source, options) {
   var uglifyOptions = Object.assign({}, options, {fromString: true});
   return uglifyJs.minify(source, uglifyOptions).code;
+};
+
+ModernizrPlugin.prototype._createFilename = function (plugin, filename, publicPath, hash, hashOfOutput) {
+  var oFilename;
+  if (plugin.options.hash) {
+    oFilename = plugin.appendHash(filename, hash || '');
+  } else if (hashOfOutput) {
+    oFilename = filename.replace(/\[hash\]/, hashOfOutput);
+    this.hashedFilename = oFilename;
+  } else {
+    oFilename = filename;
+  }
+
+  return publicPath ? publicPath + oFilename : oFilename;
 };
 
 /**
@@ -78,6 +91,14 @@ ModernizrPlugin.prototype._resolvePublicPath = function (compilation, filename) 
   return publicPath
 };
 
+ModernizrPlugin.prototype._createHash = function (output) {
+  var hash = require('crypto').createHash('md5');
+
+  hash.update(output);
+
+  return hash.digest('hex');
+};
+
 ModernizrPlugin.prototype.apply = function (compiler) {
   var self = this;
 
@@ -89,11 +110,15 @@ ModernizrPlugin.prototype.apply = function (compiler) {
       self.modernizrOutput = output;
       var stats = compilation.getStats().toJson();
       var publicPath = self._resolvePublicPath(compilation, self.options.filename);
+      var hashOfOutput;
+      if (self.options.hash) {
+        hashOfOutput = self._createHash(output);
+      }
       if (self.options.htmlWebPackPluginIntegration) {
         compiler.options.plugins.forEach(function (plugin) {
           if (plugin instanceof HtmlWebpackPlugin) {
             self._htmlWebpackPluginInject(plugin, self.options.filename,
-              stats.hash, self.modernizrOutput.length, publicPath, self.options.asEntry)
+              stats.hash, self.modernizrOutput.length, publicPath, self.options.asEntry, hashOfOutput)
           }
         })
       }
@@ -106,7 +131,7 @@ ModernizrPlugin.prototype.apply = function (compiler) {
 
     source.add(self.modernizrOutput);
 
-    var filename = self.options.filename;
+    var filename = self.hashedFilename || self.options.filename;
     compilation.assets[filename] = new CachedSource(source);
 
     cb();
