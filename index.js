@@ -3,6 +3,8 @@ var CachedSource = require('webpack-core/lib/CachedSource');
 var ConcatSource = require('webpack-core/lib/ConcatSource');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 
+var path = require('path');
+var url = require('url');
 var uglifyJs = require('uglify-js');
 var build = require('modernizr').build;
 var assign = require('object-assign');
@@ -29,14 +31,14 @@ function ModernizrPlugin(options) {
   }, options);
 }
 
-ModernizrPlugin.prototype._htmlWebpackPluginInject = function (plugin, filename, hash, filesize) {
+ModernizrPlugin.prototype._htmlWebpackPluginInject = function (plugin, filename, hash, filesize, publicPath) {
   var htmlWebPackPluginAssets = plugin.htmlWebpackPluginAssets;
   var oFilename = plugin.options.hash ? plugin.appendHash(filename, hash || '') : filename;
   plugin.htmlWebpackPluginAssets = function () {
     var result = htmlWebPackPluginAssets.apply(plugin, arguments);
     var chunk = {};
     chunk[filename] = {
-      entry: oFilename,
+      entry: (publicPath ? publicPath + oFilename : oFilename),
       css: [],
       size: filesize || 0
     };
@@ -51,6 +53,25 @@ ModernizrPlugin.prototype._minifySource = function (source, options) {
   return uglifyJs.minify(source, uglifyOptions).code;
 };
 
+/**
+ * Copied from html-webpack-plugin
+ * @param {Object} compilation
+ * @param {string} filename
+ * @returns {string} Webpack public path option
+ * @private
+ */
+ModernizrPlugin.prototype._resolvePublicPath = function (compilation, filename) {
+  var publicPath = typeof compilation.options.output.publicPath !== 'undefined' ?
+    compilation.mainTemplate.getPublicPath({hash: compilation.hash}) :
+    path.relative(path.dirname(filename), '.');
+
+  if (publicPath.length && publicPath.substr(-1, 1) !== '/') {
+    publicPath = path.join(url.resolve(publicPath + '/', '.'), '/');
+  }
+
+  return publicPath
+};
+
 ModernizrPlugin.prototype.apply = function (compiler) {
   var self = this;
 
@@ -61,11 +82,12 @@ ModernizrPlugin.prototype.apply = function (compiler) {
       }
       self.modernizrOutput = output;
       var stats = compilation.getStats().toJson();
+      var publicPath = self._resolvePublicPath(compilation, self.options.filename);
       if (self.options.htmlWebPackPluginIntegration) {
         compiler.options.plugins.forEach(function (plugin) {
           if (plugin instanceof HtmlWebpackPlugin) {
             self._htmlWebpackPluginInject(plugin, self.options.filename,
-              stats.hash, self.modernizrOutput.length)
+              stats.hash, self.modernizrOutput.length, publicPath)
           }
         })
       }

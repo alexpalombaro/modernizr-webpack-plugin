@@ -25,7 +25,7 @@ webpackConfig.plugins = webpackConfig.plugins.filter(function (plugin) {
 
 webpackConfig.plugins.push(new ModernizrWebpackPlugin({
   'filename': OUTPUT_JS,
-  'feature-detects': require('./client/feature-detects')
+  'feature-detects': require('./tests/feature-detects')
 }));
 
 var compiler = webpack(webpackConfig, function (err, stats) {

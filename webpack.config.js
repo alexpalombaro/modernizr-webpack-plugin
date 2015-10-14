@@ -5,7 +5,7 @@ var path = require('path');
 module.exports = {
   context: __dirname,
   entry: {
-    'entry-bundle': './client/entry.js'
+    'entry-bundle': './tests/entry.js'
   },
   output: {
     filename: '[name].js',
