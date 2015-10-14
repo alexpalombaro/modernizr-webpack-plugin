@@ -8,11 +8,17 @@ module.exports = {
     'entry-bundle': './tests/entry.js'
   },
   output: {
-    filename: '[name].js',
+    filename: '[name][hash].js',
     path: path.resolve(__dirname, 'dist')
   },
   plugins: [
-    new HtmlWebpackPlugin({hash: true}),
-    new ModernizrPlugin()
+    new HtmlWebpackPlugin({
+      template: 'template.html',
+      hash: true
+    }),
+    new ModernizrPlugin({
+      filename: 'modernizr[hash]',
+      noChunk: true
+    })
   ]
 };
