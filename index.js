@@ -1,7 +1,12 @@
 /* eslint-disable no-process-env */
 var CachedSource = require('webpack-core/lib/CachedSource');
 var ConcatSource = require('webpack-core/lib/ConcatSource');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
+var HtmlWebpackPlugin;
+
+try {
+  HtmlWebpackPlugin = require('html-webpack-plugin');
+} catch(ignored){
+}
 
 var path = require('path');
 var url = require('url');
@@ -27,7 +32,7 @@ function ModernizrPlugin(options) {
 
   this.options = assign({}, {
     filename: 'modernizr-bundle.js',
-    htmlWebPackPluginIntegration: true,
+    htmlWebPackPluginIntegration: !!HtmlWebpackPlugin,
     minify: process.env.NODE_ENV === 'production',
     noChunk: false
   }, options);
