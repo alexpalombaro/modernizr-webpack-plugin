@@ -30,11 +30,11 @@
     "modernizr": "^3.1.0",
     "object-assign": "^4.0.1",
     "uglify-js": "^2.4.24",
+    "html-webpack-plugin": "^1.6.1",
     "webpack-core": "^0.6.7"
   },
   "devDependencies": {
     "eslint": "^1.6.0",
-    "html-webpack-plugin": "^1.6.1",
     "karma": "^0.13.10",
     "karma-chrome-launcher": "^0.2.1",
     "karma-mocha": "^0.2.0",
