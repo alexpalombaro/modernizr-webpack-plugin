@@ -15,7 +15,7 @@ process.env.NODE_ENV = (process.env.NODE_ENV || 'development').trim();
  * es5 class
  * @param {Object} [options] Refer to Modernizr for available options
  * @param {string} [options.filename=modernizr-bundle.js] The output file name including extension
- * @param {boolean} [options.htmlWebPackPluginIntegration=true] Integrate into html-webpack-plugin if begin used
+ * @param {boolean|Object|Array} [options.htmlWebpackPlugin=true] Integrate into html-webpack-plugin if begin used
  * @param {boolean} [options.minify] Defaults to NODE_ENV
  * @constructor
  */
@@ -27,7 +27,7 @@ function ModernizrPlugin(options) {
 
   this.options = assign({}, {
     filename: 'modernizr-bundle.js',
-    htmlWebPackPluginIntegration: true,
+    htmlWebpackPlugin: true,
     minify: process.env.NODE_ENV === 'production',
     noChunk: false
   }, options);
@@ -111,8 +111,11 @@ ModernizrPlugin.prototype.apply = function (compiler) {
       } else {
         self.oFilename = filename;
       }
-      if (self.options.htmlWebPackPluginIntegration) {
+      var plugins = [];
+      if (typeof self.options.htmlWebpackPlugin === 'object') {
+        //plugins.push(self.options.htmlWebpackPlugin)
         compiler.options.plugins.forEach(function (plugin) {
+          console.log(plugin, plugin instanceof HtmlWebpackPlugin);
           if (plugin instanceof HtmlWebpackPlugin) {
             var filePath = self.createOutputPath(self.oFilename, publicPath,
               plugin.options.hash ? compilation.hash : null);
