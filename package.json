@@ -20,7 +20,9 @@
     "html-webpack-plugin"
   ],
   "author": "Alessandro Palombaro (https://github.com/alexpalombaro)",
-  "contributors": ["Simen Bekkhus (https://github.com/SimenB)"],
+  "contributors": [
+    "Simen Bekkhus (https://github.com/SimenB)"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/alexpalombaro/modernizr-webpack-plugin/issues"
@@ -44,5 +46,8 @@
     "mocha": "^2.3.3",
     "phantomjs": "^1.9.18",
     "webpack": "^1.12.2"
+  },
+  "peerDependencies": {
+    "html-webpack-plugin": ">=1.6.1"
   }
 }
