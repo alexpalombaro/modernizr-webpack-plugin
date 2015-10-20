@@ -3,6 +3,7 @@
 Generate a custom modernizr build during webpack compile. 
 Includes support to integrate with [html-webpack-plugin](https://www.npmjs.com/package/html-webpack-plugin)
 
+[![npm version](https://badge.fury.io/js/modernizr-webpack-plugin.svg)](https://badge.fury.io/js/modernizr-webpack-plugin)
 [![Build Status](https://travis-ci.org/alexpalombaro/modernizr-webpack-plugin.svg?branch=master)](https://travis-ci.org/alexpalombaro/modernizr-webpack-plugin)
 
 ## Install
