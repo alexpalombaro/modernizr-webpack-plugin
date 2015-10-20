@@ -1,7 +1,6 @@
 /* eslint-disable no-process-env */
 var CachedSource = require('webpack-core/lib/CachedSource');
 var ConcatSource = require('webpack-core/lib/ConcatSource');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 var path = require('path');
 var url = require('url');
@@ -12,11 +11,7 @@ var assign = require('object-assign');
 process.env.NODE_ENV = (process.env.NODE_ENV || 'development').trim();
 
 /**
- * es5 class
- * @param {Object} [options] Refer to Modernizr for available options
- * @param {string} [options.filename=modernizr-bundle.js] The output file name including extension
- * @param {boolean} [options.htmlWebPackPluginIntegration=true] Integrate into html-webpack-plugin if begin used
- * @param {boolean} [options.minify] Defaults to NODE_ENV
+ *
  * @constructor
  */
 function ModernizrPlugin(options) {
@@ -25,9 +20,14 @@ function ModernizrPlugin(options) {
     options.filename = options.filename + '.js';
   }
 
+  // regression support for namechange 1.0.0+
+  if (options.htmlWebPackPluginIntegration !== undefined) {
+    options.htmlWebpackPlugin = options.htmlWebPackPluginIntegration;
+  }
+
   this.options = assign({}, {
     filename: 'modernizr-bundle.js',
-    htmlWebPackPluginIntegration: true,
+    htmlWebpackPlugin: true,
     minify: process.env.NODE_ENV === 'production',
     noChunk: false
   }, options);
@@ -94,6 +94,10 @@ ModernizrPlugin.prototype.createOutputPath = function (oFilename, publicPath, ha
   return result;
 };
 
+ModernizrPlugin.prototype.validatePlugin = function (plugin) {
+  return !(typeof plugin !== 'object' || typeof plugin.htmlWebpackPluginAssets !== 'function');
+};
+
 ModernizrPlugin.prototype.apply = function (compiler) {
   var self = this;
 
@@ -111,16 +115,37 @@ ModernizrPlugin.prototype.apply = function (compiler) {
       } else {
         self.oFilename = filename;
       }
-      if (self.options.htmlWebPackPluginIntegration) {
-        compiler.options.plugins.forEach(function (plugin) {
-          if (plugin instanceof HtmlWebpackPlugin) {
-            var filePath = self.createOutputPath(self.oFilename, publicPath,
-              plugin.options.hash ? compilation.hash : null);
-            self.htmlWebpackPluginInject(plugin, path.basename(filename, '.js'), filePath,
-              output.length, self.options.noChunk)
+      var plugins = [], plugin = self.options.htmlWebpackPlugin;
+      var filterFunct = function (plugin, error) {
+        if (self.validatePlugin(plugin)) {
+          return true;
+        }
+        if (typeof error === 'boolean' && error) {
+          compilation.errors.push(new Error('Unable to inject into html-webpack-plugin instance.\n' +
+            'Please log issue at https://github.com/alexpalombaro/modernizr-webpack-plugin/issues.'));
+        }
+      };
+      switch (typeof plugin) {
+        case 'array':
+          plugins = plugin.filter(function (plugin) {
+            return filterFunct(plugin, true);
+          });
+          break;
+        case 'object':
+          if (filterFunct(plugin, true)) {
+            plugins.push(plugin);
           }
-        })
+          break;
+        case 'boolean':
+          plugins = plugin ? compiler.options.plugins.filter(filterFunct) : [];
+          break;
       }
+      plugins.forEach(function (plugin) {
+        var filePath = self.createOutputPath(self.oFilename, publicPath,
+          plugin.options.hash ? compilation.hash : null);
+        self.htmlWebpackPluginInject(plugin, path.basename(filename, '.js'), filePath,
+          output.length, self.options.noChunk)
+      });
       cb();
     })
   });
@@ -134,7 +159,7 @@ ModernizrPlugin.prototype.apply = function (compiler) {
     compilation.assets[filename] = new CachedSource(source);
 
     cb();
-  })
+  });
 };
 
 module.exports = ModernizrPlugin;
