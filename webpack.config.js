@@ -18,7 +18,7 @@ module.exports = {
     }),
     new ModernizrPlugin({
       filename: 'modernizr[hash]',
-      noChunk: true
+      noChunk:true
     })
   ]
 };

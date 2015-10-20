@@ -88,13 +88,33 @@ var config = {
 }
 ```
 
-## htmlWebPackPluginIntegration
-Type: boolean
+## htmlWebpackPlugin
+Type: boolean | object | array
 
 Option to include support for [html-webpack-plugin](https://www.npmjs.com/package/html-webpack-plugin).
 Defaults to `true`.
-*Note:* Only applies if the plugin in found in the webpack config plugin array
 
+```javascript
+// define variable if specifying instance to inject into
+var plugin = new HtmlWebpackPlugin();
+webpackConfig = {...
+   plugins: [
+     plugin,  
+     new ModernizrPlugin({
+       // auto search through all webpack plugins for compatible 
+       // html-webpack-plugins and inject into all 
+       htmlWebpackPlugin: true
+       // OR disable any html-webpack-plugin injection
+       htmlWebpackPlugin: false
+       // OR inject into the instance specified
+       htmlWebpackPlugin: plugin
+       // OR inject into each of the instances specified
+       htmlWebpackPlugin: [plugin]
+     })
+   ]
+}
+
+```
 
 ## noChunk
 Type: boolean
@@ -106,7 +126,7 @@ Defaults to `false`.
 var htmlWebpackPluginConfig = {
   template:'template.html'
 }
-var modernizrPluginconfig = {
+var modernizrPluginConfig = {
   filename: 'mybundle',
   noChunk: true
 }
