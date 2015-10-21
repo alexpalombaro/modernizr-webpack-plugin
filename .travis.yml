@@ -7,3 +7,6 @@ node_js:
   - "node"
 env:
   - BUILD_ENV="travis"
+branches:
+  only:
+    - master
