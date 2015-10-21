@@ -77,10 +77,10 @@ ModernizrPlugin.prototype.resolvePublicPath = function (compilation, filename) {
   return publicPath
 };
 
-ModernizrPlugin.prototype.createHash = function (output) {
+ModernizrPlugin.prototype.createHash = function (output, length) {
   var hash = require('crypto').createHash('md5');
   hash.update(output);
-  return hash.digest('hex');
+  return hash.digest('hex').substr(0, length);
 };
 
 ModernizrPlugin.prototype.createOutputPath = function (oFilename, publicPath, hash) {
@@ -110,7 +110,8 @@ ModernizrPlugin.prototype.apply = function (compiler) {
       var publicPath = self.resolvePublicPath(compilation, self.options.filename);
       var filename = self.options.filename;
       if (/\[hash\]/.test(self.options.filename)) {
-        self.oFilename = filename.replace(/\[hash\]/, self.createHash(output));
+        self.oFilename = filename.replace(/\[hash\]/, self.createHash(output,
+          compiler.options.output.hashDigestLength));
         filename = filename.replace(/\[hash\]/, '');
       } else {
         self.oFilename = filename;

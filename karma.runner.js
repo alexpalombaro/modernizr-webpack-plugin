@@ -36,5 +36,3 @@ var compiler = webpack(webpackConfig, function (err, stats) {
 
   _executeTestingServer(path.resolve(stats.compilation.compiler.outputPath, OUTPUT_JS));
 });
-
-
