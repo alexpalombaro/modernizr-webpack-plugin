@@ -4,6 +4,7 @@ var ModernizrWebpackPlugin = require('./index');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 var Promise = require('bluebird');
+var assign = require('object-assign');
 
 var path = require('path');
 var fs = Promise.promisifyAll(require('fs'));
@@ -30,7 +31,7 @@ describe('[ModernizrWebpackPlugin] Build Tests', function () {
 
   beforeEach(function (done) {
     // reset config to base status
-    webpackConfig = Object.assign({}, webpackConfigBase);
+    webpackConfig = assign({}, webpackConfigBase);
     del(OUTPUT_PATH).then(function () {
       done();
     });
