@@ -2,7 +2,7 @@
 
 var config = require('./feature-detects');
 
-describe('[ModernizrPlugin]', function () {
+describe('[ModernizrWebpackPlugin] Browser Tests', function () {
 
   it('Should contain an instance of Modernizr', function () {
     expect(window.Modernizr).to.be.an('object');
