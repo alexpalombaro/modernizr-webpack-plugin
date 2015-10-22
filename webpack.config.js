@@ -12,10 +12,7 @@ module.exports = {
     path: path.resolve(__dirname, 'dist')
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: 'template.html',
-      hash: true
-    }),
+    new HtmlWebpackPlugin(),
     new ModernizrPlugin({
       filename: 'modernizr[hash]',
       noChunk:true

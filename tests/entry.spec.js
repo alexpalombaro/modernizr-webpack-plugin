@@ -2,13 +2,13 @@
 
 var config = require('./feature-detects');
 
-describe('[ModernizrPlugin]', function () {
+describe('[ModernizrWebpackPlugin] Browser Tests', function () {
 
-  it('Should contain an instance of Modernizr', function () {
+  it('should contain an instance of Modernizr', function () {
     expect(window.Modernizr).to.be.an('object');
   });
 
-  it('Should have feature-detects specified in bundle options', function () {
+  it('should have feature-detects specified in bundle options', function () {
     expect(window.Modernizr).to.have.all.keys(config);
   });
 });

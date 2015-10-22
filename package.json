@@ -7,7 +7,7 @@
     "index.js"
   ],
   "scripts": {
-    "test": "node karma.runner.js"
+    "test": "mocha mocha.entry.js && node karma.runner.js"
   },
   "repository": {
     "type": "git",
@@ -33,9 +33,12 @@
     "object-assign": "^4.0.1",
     "uglify-js": "^2.4.24",
     "webpack-core": "^0.6.7",
-    "html-webpack-plugin": "*"
+    "html-webpack-plugin": "^1.6.2 || ^2.0.4"
   },
   "devDependencies": {
+    "bluebird": "^2.10.2",
+    "chai": "^3.3.0",
+    "del": "^2.0.2",
     "eslint": "^1.6.0",
     "karma": "^0.13.10",
     "karma-chrome-launcher": "^0.2.1",

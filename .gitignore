@@ -3,6 +3,7 @@ node_modules
 
 ## Build
 dist
+temp
 *.log
 .DS_STORE
 
