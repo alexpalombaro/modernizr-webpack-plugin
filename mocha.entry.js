@@ -1,43 +1,50 @@
 /*eslint-env node, mocha*/
 
 var ModernizrWebpackPlugin = require('./index');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 var Promise = require('bluebird');
-
-var webpack = Promise.promisify(require('webpack'));
-var webpackConfig = clearPluginConfig(require('./webpack.config'));
 
 var path = require('path');
 var fs = Promise.promisifyAll(require('fs'));
 var del = require('del');
 var expect = require('chai').expect;
 
-var relative = path.relative(__dirname, webpackConfig.output.path);
+var OUTPUT_PATH = path.resolve(__dirname, 'temp');
 
-function clearPluginConfig(config) {
-  config.plugins = config.plugins.filter(function (plugin) {
-    return !(plugin instanceof ModernizrWebpackPlugin)
-  });
+var webpack = Promise.promisify(require('webpack'));
+var webpackConfig;
+var webpackConfigBase = {
+  context: __dirname,
+  entry: {
+    'entry-bundle': './tests/entry.js'
+  },
+  output: {
+    filename: '[name].js',
+    path: OUTPUT_PATH
+  }
+};
 
-  return config;
-}
 
 describe('[ModernizrWebpackPlugin] Build Tests', function () {
 
   beforeEach(function (done) {
-    webpackConfig = Object.assign({}, webpackConfig);
-    del(relative).then(function () {
+    // reset config to base status
+    webpackConfig = Object.assign({}, webpackConfigBase);
+    del(OUTPUT_PATH).then(function () {
       done();
     });
   });
 
-  var config;
   it('should output a hashed filename', function (done) {
-    config = {filename: 'testing[hash]'};
-    webpackConfig.plugins.push(new ModernizrWebpackPlugin(config));
+    var config = {filename: 'testing[hash]'};
+    webpackConfig.plugins = [
+      new HtmlWebpackPlugin(),
+      new ModernizrWebpackPlugin(config)
+    ];
     webpack(webpackConfig).then(function (stats) {
       var hashDigestLength = stats.compilation.outputOptions.hashDigestLength;
-      return fs.readdirAsync(relative).then(function (files) {
+      return fs.readdirAsync(OUTPUT_PATH).then(function (files) {
         var regexp = new RegExp('^testing[\\w\\d]{' + hashDigestLength + '}\\.js$');
         files = files.filter(function (file) {
           return regexp.test(file);
@@ -48,12 +55,18 @@ describe('[ModernizrWebpackPlugin] Build Tests', function () {
     }).catch(done);
   });
 
-  it('should output modernizr to the webpack public path', function (done) {
+  it('should include public path with html-webpack-plugin', function (done) {
+    webpackConfig.plugins = [
+      new HtmlWebpackPlugin(),
+      new ModernizrWebpackPlugin()
+    ];
     webpackConfig.output.publicPath = 'public/';
     webpackConfig.plugins.push(new ModernizrWebpackPlugin());
-    webpack(webpackConfig).then(function (stats) {
-      console.log(stats);
-      done();
+    webpack(webpackConfig).then(function () {
+      fs.readFileAsync(path.resolve(OUTPUT_PATH, 'index.html'), 'utf8').then(function (data) {
+        expect(/<script\ssrc="public\/modernizr-bundle.js">/.test(data)).to.be.true;
+        done();
+      })
     }).catch(done);
   });
 

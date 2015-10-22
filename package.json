@@ -7,7 +7,7 @@
     "index.js"
   ],
   "scripts": {
-    "test": "mocha mocha.entry.js"
+    "test": "mocha mocha.entry.js && node karma.runner.js"
   },
   "repository": {
     "type": "git",
