@@ -15,8 +15,9 @@ process.env.NODE_ENV = (process.env.NODE_ENV || 'development').trim();
  * @constructor
  */
 function ModernizrPlugin(options) {
+  options = options || {};
   // ensure extension on filename
-  if (options && options.filename && !options.filename.match(/\.js$/)) {
+  if (options.filename && !options.filename.match(/\.js$/)) {
     options.filename = options.filename + '.js';
   }
 
