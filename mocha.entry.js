@@ -2,14 +2,15 @@
 
 var ModernizrWebpackPlugin = require('./index');
 
-var expect = require('');
+var Promise = require('bluebird');
 
-var webpack = require('webpack');
-var webpackConfig = require('./webpack.config');
+var webpack = Promise.promisify(require('webpack'));
+var webpackConfig = clearPluginConfig(require('./webpack.config'));
 
 var path = require('path');
-var fs = require('fs');
+var fs = Promise.promisifyAll(require('fs'));
 var del = require('del');
+var expect = require('chai').expect;
 
 var relative = path.relative(__dirname, webpackConfig.output.path);
 
@@ -21,10 +22,10 @@ function clearPluginConfig(config) {
   return config;
 }
 
-describe('ModernizrWebpackPlugin testing suite', function () {
+describe('[ModernizrWebpackPlugin] Build Tests', function () {
 
   beforeEach(function (done) {
-    webpackConfig = clearPluginConfig(webpackConfig);
+    webpackConfig = Object.assign({}, webpackConfig);
     del(relative).then(function () {
       done();
     });
@@ -32,20 +33,28 @@ describe('ModernizrWebpackPlugin testing suite', function () {
 
   var config;
   it('should output a hashed filename', function (done) {
-    config = { filename: 'testing[hash]' };
+    config = {filename: 'testing[hash]'};
     webpackConfig.plugins.push(new ModernizrWebpackPlugin(config));
-    webpack(webpackConfig, function () {
-      fs.readdir(relative, function (stats, files) {
+    webpack(webpackConfig).then(function (stats) {
+      var hashDigestLength = stats.compilation.outputOptions.hashDigestLength;
+      return fs.readdirAsync(relative).then(function (files) {
+        var regexp = new RegExp('^testing[\\w\\d]{' + hashDigestLength + '}\\.js$');
         files = files.filter(function (file) {
-          return /^testing/
+          return regexp.test(file);
         });
-        expect()
+        expect(files.length).to.equal(1);
         done();
-      });
-    })
+      })
+    }).catch(done);
   });
 
-  it('should output a file with name and extension', function () {
+  it('should output modernizr to the webpack public path', function (done) {
+    webpackConfig.output.publicPath = 'public/';
+    webpackConfig.plugins.push(new ModernizrWebpackPlugin());
+    webpack(webpackConfig).then(function (stats) {
+      console.log(stats);
+      done();
+    }).catch(done);
   });
 
 });
