@@ -62,7 +62,6 @@ describe('[ModernizrWebpackPlugin] Build Tests', function () {
       new ModernizrWebpackPlugin()
     ];
     webpackConfig.output.publicPath = 'public/';
-    webpackConfig.plugins.push(new ModernizrWebpackPlugin());
     webpack(webpackConfig).then(function () {
       fs.readFileAsync(path.resolve(OUTPUT_PATH, 'index.html'), 'utf8').then(function (data) {
         expect(/<script\ssrc="public\/modernizr-bundle.js">/.test(data)).to.be.true;
@@ -70,5 +69,19 @@ describe('[ModernizrWebpackPlugin] Build Tests', function () {
       })
     }).catch(done);
   });
+
+  it('should output minified modernizr package', function (done) {
+    webpackConfig.plugins = [
+      new ModernizrWebpackPlugin({
+        minify:true
+      })
+    ];
+    webpack(webpackConfig).then(function () {
+      fs.readFileAsync(path.resolve(OUTPUT_PATH, 'modernizr-bundle.js'), 'utf8').then(function (data) {
+        expect(/\r|\n/.test(data)).to.be.false;
+        done();
+      });
+    }).catch(done)
+  })
 
 });
