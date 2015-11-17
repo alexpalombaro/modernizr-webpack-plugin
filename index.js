@@ -55,7 +55,7 @@ ModernizrPlugin.prototype.htmlWebpackPluginInject = function (plugin, filename, 
 };
 
 ModernizrPlugin.prototype.minifySource = function (source, options) {
-  var uglifyOptions = Object.assign({}, options, {fromString: true});
+  var uglifyOptions = assign({}, options, {fromString: true});
   return uglifyJs.minify(source, uglifyOptions).code;
 };
 
