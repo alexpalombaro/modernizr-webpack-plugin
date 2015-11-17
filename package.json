@@ -1,6 +1,6 @@
 {
   "name": "modernizr-webpack-plugin",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Creates a custom Modernizr build during webpack compile. Integrates with html-webpack-plugin.",
   "main": "index.js",
   "files": [
