@@ -103,21 +103,24 @@ ModernizrPlugin.prototype.apply = function (compiler) {
   var self = this;
 
   compiler.plugin('after-compile', function (compilation, cb) {
-    build(self.options, function (output) {
-      if (self.options.minify) {
-        output = self.minifySource(output, self.options.minify);
+
+    var buildOptions = assign({}, self.options);
+
+    build(buildOptions, function (output) {
+      if (buildOptions.minify) {
+        output = self.minifySource(output, buildOptions.minify);
       }
       self.modernizrOutput = output;
-      var publicPath = self.resolvePublicPath(compilation, self.options.filename);
-      var filename = self.options.filename;
-      if (/\[hash\]/.test(self.options.filename)) {
+      var publicPath = self.resolvePublicPath(compilation, buildOptions.filename);
+      var filename = buildOptions.filename;
+      if (/\[hash\]/.test(buildOptions.filename)) {
         self.oFilename = filename.replace(/\[hash\]/, self.createHash(output,
           compiler.options.output.hashDigestLength));
         filename = filename.replace(/\[hash\]/, '');
       } else {
         self.oFilename = filename;
       }
-      var plugins = [], plugin = self.options.htmlWebpackPlugin;
+      var plugins = [], plugin = buildOptions.htmlWebpackPlugin;
       var filterFunct = function (plugin, error) {
         if (self.validatePlugin(plugin)) {
           return true;
@@ -146,7 +149,7 @@ ModernizrPlugin.prototype.apply = function (compiler) {
         var filePath = self.createOutputPath(self.oFilename, publicPath,
           plugin.options.hash ? compilation.hash : null);
         self.htmlWebpackPluginInject(plugin, path.basename(filename, '.js'), filePath,
-          output.length, self.options.noChunk)
+          output.length, buildOptions.noChunk)
       });
       cb();
     })
