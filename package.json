@@ -1,6 +1,6 @@
 {
   "name": "modernizr-webpack-plugin",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Creates a custom Modernizr build during webpack compile. Integrates with html-webpack-plugin.",
   "main": "index.js",
   "files": [
@@ -21,7 +21,8 @@
   ],
   "author": "Alessandro Palombaro (https://github.com/alexpalombaro)",
   "contributors": [
-    "Simen Bekkhus (https://github.com/SimenB)"
+    "Simen Bekkhus (https://github.com/SimenB)",
+    "Mikhail Kyurshin (takumo@gmail.com)"
   ],
   "license": "MIT",
   "bugs": {
