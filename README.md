@@ -51,7 +51,7 @@ module.exports = {
   plugins: [
     // Output modernizr-bundle.js with 'input',  
     // 'canvas' and 'css/resize' feature detects
-    new ModernizrPlugin(config)
+    new ModernizrWebpackPlugin(config)
   ]
 }
 ```
@@ -101,7 +101,7 @@ var plugin = new HtmlWebpackPlugin();
 webpackConfig = {...
    plugins: [
      plugin,  
-     new ModernizrPlugin({
+     new ModernizrWebpackPlugin({
        // auto search through all webpack plugins for compatible 
        // html-webpack-plugins and inject into all 
        htmlWebpackPlugin: true
