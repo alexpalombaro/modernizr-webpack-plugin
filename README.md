@@ -136,9 +136,9 @@ var modernizrPluginConfig = {
 _template.html_
 ```html
 <!-- example of template without noChunk-->
-<script src="{%= o.htmlWebpackPlugin.files.chunks['mybundle'].entry %}"></script>
+<script src="<%= o.htmlWebpackPlugin.files.chunks['mybundle'].entry %>"></script>
 
 <!-- example of template WITH noChunk-->
-<script src="{%= o.htmlWebpackPlugin.files.mybundle %}"></script>
+<script src="<%= o.htmlWebpackPlugin.files.mybundle %>"></script>
 
 ```
