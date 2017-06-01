@@ -1,4 +1,4 @@
-var ModernizrPlugin = require('./index');
+var ModernizrWebpackPlugin = require('./index');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var path = require('path');
 
@@ -13,7 +13,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin(),
-    new ModernizrPlugin({
+    new ModernizrWebpackPlugin({
       filename: 'modernizr[hash]',
       noChunk:true
     })
