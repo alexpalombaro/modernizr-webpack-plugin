@@ -44,6 +44,25 @@ describe('[ModernizrWebpackPlugin] Build Tests', function () {
       new ModernizrWebpackPlugin(config)
     ];
     webpack(webpackConfig).then(function (stats) {
+      var hashDigestLength = stats.compilation.hash;
+      return fs.readdirAsync(OUTPUT_PATH).then(function (files) {
+        var regexp = new RegExp('^testing' + hashDigestLength + '\\.js$');
+        files = files.filter(function (file) {
+          return regexp.test(file);
+        });
+        expect(files.length).to.equal(1);
+        done();
+      })
+    }).catch(done);
+  });
+
+  it('should output a chunkhashed filename', function (done) {
+    var config = {filename: 'testing[chunkhash]'};
+    webpackConfig.plugins = [
+      new HtmlWebpackPlugin(),
+      new ModernizrWebpackPlugin(config)
+    ];
+    webpack(webpackConfig).then(function (stats) {
       var hashDigestLength = stats.compilation.outputOptions.hashDigestLength;
       return fs.readdirAsync(OUTPUT_PATH).then(function (files) {
         var regexp = new RegExp('^testing[\\w\\d]{' + hashDigestLength + '}\\.js$');

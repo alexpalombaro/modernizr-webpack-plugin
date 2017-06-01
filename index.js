@@ -114,9 +114,12 @@ ModernizrPlugin.prototype.apply = function (compiler) {
       var publicPath = self.resolvePublicPath(compilation, buildOptions.filename);
       var filename = buildOptions.filename;
       if (/\[hash\]/.test(buildOptions.filename)) {
-        self.oFilename = filename.replace(/\[hash\]/, self.createHash(output,
-          compiler.options.output.hashDigestLength));
+        self.oFilename = filename.replace(/\[hash\]/, compilation.hash);
         filename = filename.replace(/\[hash\]/, '');
+      } else if (/\[chunkhash\]/.test(buildOptions.filename)) {
+        self.oFilename = filename.replace(/\[chunkhash\]/, self.createHash(output,
+          compiler.options.output.hashDigestLength));
+        filename = filename.replace(/\[chunkhash\]/, '');
       } else {
         self.oFilename = filename;
       }

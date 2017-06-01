@@ -1,6 +1,6 @@
 # modernizr-webpack-plugin
 
-Generate a custom modernizr build during webpack compile. 
+Generate a custom modernizr build during webpack compile.
 Includes support to integrate with [html-webpack-plugin](https://www.npmjs.com/package/html-webpack-plugin)
 
 [![npm version](https://badge.fury.io/js/modernizr-webpack-plugin.svg)](https://badge.fury.io/js/modernizr-webpack-plugin)
@@ -61,13 +61,13 @@ Additional options available via following config properties.
 ### filename
 Type: string
 
-Optional custom output filename. Support included for `[hash]` in output name.
+Optional custom output filename. Support included for `[hash]` and `[chunkhash]` in output name.
 Defaults to `modernizr-bundle.js`.
-*Note:* Will append `.js` extension if missing. 
+*Note:* Will append `.js` extension if missing.
 
 ```javascript
 var config = {
-  filename: 'my-bundle-name[hash].js',
+  filename: 'my-bundle-name[chunkhash].js',
 }
 ```
 
@@ -102,8 +102,8 @@ webpackConfig = {...
    plugins: [
      plugin,  
      new ModernizrWebpackPlugin({
-       // auto search through all webpack plugins for compatible 
-       // html-webpack-plugins and inject into all 
+       // auto search through all webpack plugins for compatible
+       // html-webpack-plugins and inject into all
        htmlWebpackPlugin: true
        // OR disable any html-webpack-plugin injection
        htmlWebpackPlugin: false
@@ -122,7 +122,7 @@ Type: boolean
 
 Option to simplify [html-webpack-plugin](https://www.npmjs.com/package/html-webpack-plugin) template reference
 Defaults to `false`.
- 
+
 ```javascript
 var htmlWebpackPluginConfig = {
   template:'template.html'
