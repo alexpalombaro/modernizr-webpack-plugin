@@ -1,6 +1,6 @@
 {
   "name": "modernizr-webpack-plugin",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Creates a custom Modernizr build during webpack compile. Integrates with html-webpack-plugin.",
   "main": "index.js",
   "files": [
@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/alexpalombaro/modernizr-webpack-plugin#readme",
   "dependencies": {
-    "modernizr": "^3.1.0",
+    "modernizr": "^3.5.0",
     "object-assign": "^4.0.1",
     "uglify-js": "^2.4.24",
     "webpack-core": "^0.6.7",
