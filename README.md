@@ -6,6 +6,10 @@ Includes support to integrate with [html-webpack-plugin](https://www.npmjs.com/p
 [![npm version](https://badge.fury.io/js/modernizr-webpack-plugin.svg)](https://badge.fury.io/js/modernizr-webpack-plugin)
 [![Build Status](https://travis-ci.org/alexpalombaro/modernizr-webpack-plugin.svg?branch=master)](https://travis-ci.org/alexpalombaro/modernizr-webpack-plugin)
 
+## Attention
+
+Due to the updated package reference of Modernizr v3.9 and its dependencies this package no longer works on unmaintained node versions (< 10). You can resolve this in your application by updating the package.json to include "resolutions": { "modernizr": "3.8.0" }
+
 ## Install
 
 ```sh
