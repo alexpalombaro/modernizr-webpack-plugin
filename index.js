@@ -102,7 +102,7 @@ ModernizrPlugin.prototype.validatePlugin = function (plugin) {
 ModernizrPlugin.prototype.apply = function (compiler) {
   var self = this;
 
-  compiler.plugin('after-compile', function (compilation, cb) {
+  (compiler.hooks ? compiler.hooks.afterCompile.tapAsync.bind(compiler.hooks.afterCompile, 'ModernizrWebpackPlugin') : compiler.plugin.bind(compiler, 'after-compile'))((compilation, cb) => {
 
     var buildOptions = assign({}, self.options);
 
@@ -158,7 +158,7 @@ ModernizrPlugin.prototype.apply = function (compiler) {
     })
   });
 
-  compiler.plugin('emit', function (compilation, cb) {
+  (compiler.hooks ? compiler.hooks.emit.tapAsync.bind(compiler.hooks.emit, 'ModernizrWebpackPlugin') : compiler.plugin.bind(compiler, 'emit'))((compilation, cb) => {
     var source = new ConcatSource();
 
     source.add(self.modernizrOutput);
