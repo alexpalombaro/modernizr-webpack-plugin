@@ -40,7 +40,7 @@
     "bluebird": "^2.10.2",
     "chai": "^3.3.0",
     "del": "^2.0.2",
-    "eslint": "^1.6.0",
+    "eslint": "^4.18.2",
     "karma": "^0.13.10",
     "karma-chrome-launcher": "^0.2.1",
     "karma-mocha": "^0.2.0",
