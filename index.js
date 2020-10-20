@@ -6,7 +6,6 @@ var path = require('path');
 var url = require('url');
 var uglifyJs = require('uglify-js');
 var build = require('modernizr').build;
-var assign = require('object-assign');
 
 process.env.NODE_ENV = (process.env.NODE_ENV || 'development').trim();
 
@@ -26,7 +25,7 @@ function ModernizrPlugin(options) {
     options.htmlWebpackPlugin = options.htmlWebPackPluginIntegration;
   }
 
-  this.options = assign({}, {
+  this.options = Object.assign({}, {
     filename: 'modernizr-bundle.js',
     htmlWebpackPlugin: true,
     minify: process.env.NODE_ENV === 'production',
@@ -48,14 +47,14 @@ ModernizrPlugin.prototype.htmlWebpackPluginInject = function (plugin, filename, 
         size: filesize || 0
       };
       // get html-webpack-plugin to output modernizr chunk first
-      result.chunks = assign({}, chunk, result.chunks);
+      result.chunks = Object.assign({}, chunk, result.chunks);
     }
     return result;
   };
 };
 
 ModernizrPlugin.prototype.minifySource = function (source, options) {
-  var uglifyOptions = assign({}, options, {fromString: true});
+  var uglifyOptions = Object.assign({}, options, {fromString: true});
   return uglifyJs.minify(source, uglifyOptions).code;
 };
 
@@ -68,7 +67,7 @@ ModernizrPlugin.prototype.minifySource = function (source, options) {
  */
 ModernizrPlugin.prototype.resolvePublicPath = function (compilation, filename) {
   var publicPath = typeof compilation.options.output.publicPath !== 'undefined' ?
-    compilation.mainTemplate.getPublicPath({hash: compilation.hash}) :
+    compilation.getAssetPath(compilation.outputOptions.publicPath, {}) :
     path.relative(path.dirname(filename), '.');
 
   if (publicPath.length && publicPath.substr(-1, 1) !== '/') {
@@ -102,9 +101,8 @@ ModernizrPlugin.prototype.validatePlugin = function (plugin) {
 ModernizrPlugin.prototype.apply = function (compiler) {
   var self = this;
 
-  (compiler.hooks ? compiler.hooks.afterCompile.tapAsync.bind(compiler.hooks.afterCompile, 'ModernizrWebpackPlugin') : compiler.plugin.bind(compiler, 'after-compile'))((compilation, cb) => {
-
-    var buildOptions = assign({}, self.options);
+  compiler.hooks.afterCompile.tapAsync('ModernizrWebpackPlugin', (compilation, cb) => {
+    var buildOptions = Object.assign({}, self.options);
 
     build(buildOptions, function (output) {
       if (buildOptions.minify) {
@@ -158,7 +156,7 @@ ModernizrPlugin.prototype.apply = function (compiler) {
     })
   });
 
-  (compiler.hooks ? compiler.hooks.emit.tapAsync.bind(compiler.hooks.emit, 'ModernizrWebpackPlugin') : compiler.plugin.bind(compiler, 'emit'))((compilation, cb) => {
+  compiler.hooks.emit.tapAsync('ModernizrWebpackPlugin', (compilation, cb) => {
     var source = new ConcatSource();
 
     source.add(self.modernizrOutput);
