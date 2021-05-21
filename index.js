@@ -1,173 +1,237 @@
-/* eslint-disable no-process-env */
-var CachedSource = require('webpack-core/lib/CachedSource');
-var ConcatSource = require('webpack-core/lib/ConcatSource');
 
-var path = require('path');
-var url = require('url');
-var uglifyJs = require('uglify-js');
-var build = require('modernizr').build;
-var assign = require('object-assign');
+const webpack = require('webpack');
+
+const path = require('path');
+const url = require('url');
+const uglifyJs = require('uglify-js');
+const build = require('modernizr').build;
 
 process.env.NODE_ENV = (process.env.NODE_ENV || 'development').trim();
 
-/**
- *
- * @constructor
- */
-function ModernizrPlugin(options) {
-  options = options || {};
-  // ensure extension on filename
-  if (options.filename && !options.filename.match(/\.js$/)) {
-    options.filename = options.filename + '.js';
-  }
+class ModernizrPlugin {
+    constructor(options) {
+        options = options || {};
+        // ensure extension on filename
+        if (options.filename && !options.filename.match(/\.js$/)) {
+            options.filename = options.filename + '.js';
+        }
 
-  // regression support for namechange 1.0.0+
-  if (options.htmlWebPackPluginIntegration !== undefined) {
-    options.htmlWebpackPlugin = options.htmlWebPackPluginIntegration;
-  }
+        // regression support for namechange 1.0.0+
+        if (options.htmlWebPackPluginIntegration !== undefined) {
+            options.htmlWebpackPlugin = options.htmlWebPackPluginIntegration;
+        }
 
-  this.options = assign({}, {
-    filename: 'modernizr-bundle.js',
-    htmlWebpackPlugin: true,
-    minify: process.env.NODE_ENV === 'production',
-    noChunk: false
-  }, options);
-}
-
-ModernizrPlugin.prototype.htmlWebpackPluginInject = function (plugin, filename, filePath, filesize, noChunk) {
-  var htmlWebPackPluginAssets = plugin.htmlWebpackPluginAssets;
-  plugin.htmlWebpackPluginAssets = function () {
-    var result = htmlWebPackPluginAssets.apply(plugin, arguments);
-    if (noChunk) {
-      result[filename] = filePath;
-    } else {
-      var chunk = {};
-      chunk[filename] = {
-        entry: filePath,
-        css: [],
-        size: filesize || 0
-      };
-      // get html-webpack-plugin to output modernizr chunk first
-      result.chunks = assign({}, chunk, result.chunks);
+        this.options = Object.assign({}, {
+            filename: 'modernizr-bundle.js',
+            htmlWebpackPlugin: true,
+            minify: process.env.NODE_ENV === 'production',
+            noChunk: false
+        }, options);
     }
-    return result;
-  };
-};
 
-ModernizrPlugin.prototype.minifySource = function (source, options) {
-  var uglifyOptions = assign({}, options, {fromString: true});
-  return uglifyJs.minify(source, uglifyOptions).code;
-};
+    htmlWebpackPluginAddHtmlAsset(
+        htmlWebpackPlugin,
+        buildOptions,
+        compilation,
+        outputHash,
+        rawModernizrSource
+    ) {
+        const hooks = htmlWebpackPlugin.constructor.getHooks(compilation);
 
-/**
- * Copied from html-webpack-plugin
- * @param {Object} compilation
- * @param {string} filename
- * @returns {string} Webpack public path option
- * @private
- */
-ModernizrPlugin.prototype.resolvePublicPath = function (compilation, filename) {
-  var publicPath = typeof compilation.options.output.publicPath !== 'undefined' ?
-    compilation.mainTemplate.getPublicPath({hash: compilation.hash}) :
-    path.relative(path.dirname(filename), '.');
+        hooks.beforeAssetTagGeneration.tap(
+            'ModernizrWebpackPlugin',
+            (htmlPluginData) => {
+                let oFilename = this.getOutputFilename(
+                    buildOptions,
+                    outputHash,
+                    compilation
+                );
 
-  if (publicPath.length && publicPath.substr(-1, 1) !== '/') {
-    publicPath = path.join(url.resolve(publicPath + '/', '.'), '/');
-  }
+                compilation.emitAsset(oFilename, rawModernizrSource);
 
-  return publicPath
-};
+                return htmlPluginData;
+            }
+        );
+    }
 
-ModernizrPlugin.prototype.createHash = function (output, length) {
-  var hash = require('crypto').createHash('md5');
-  hash.update(output);
-  return hash.digest('hex').substr(0, length);
-};
+    htmlWebpackPluginInjectScriptTag(
+        htmlWebpackPlugin,
+        buildOptions,
+        compilation,
+        outputHash
+    ) {
+        const hooks = htmlWebpackPlugin.constructor.getHooks(compilation);
 
-ModernizrPlugin.prototype.createOutputPath = function (oFilename, publicPath, hash) {
-  var result = oFilename;
-  if (publicPath) {
-    result = publicPath + oFilename;
-  }
-  if (hash) {
-    result = result + (result.indexOf('?') === -1 ? '?' : '&') + hash;
-  }
-  return result;
-};
+        hooks.alterAssetTags.tap(
+            'ModernizrWebpackPlugin',
+            (htmlPluginData) => {
+                let oFilename = this.getOutputFilename(
+                    buildOptions,
+                    outputHash,
+                    compilation
+                );
+                const publicPath = this.resolvePublicPath(
+                    compilation,
+                    buildOptions.filename
+                );
+                const filePath = this.createOutputPath(
+                    oFilename,
+                    publicPath,
+                    htmlWebpackPlugin.options.hash ? compilation.hash : null
+                );
+                const moderizrScriptTag = {
+                    tagName: 'script',
+                    voidTag: false,
+                    attributes: {
+                        src: filePath
+                    }
+                };
+                htmlPluginData.assetTags.scripts.push(moderizrScriptTag);
 
-ModernizrPlugin.prototype.validatePlugin = function (plugin) {
-  return !(typeof plugin !== 'object' || typeof plugin.htmlWebpackPluginAssets !== 'function');
-};
+                return htmlPluginData;
+            }
+        );
+    }
 
-ModernizrPlugin.prototype.apply = function (compiler) {
-  var self = this;
+    minifySource(source, options) {
+        const uglifyOptions = Object.assign({}, options);
+        const result = uglifyJs.minify(source, uglifyOptions);
 
-  (compiler.hooks ? compiler.hooks.afterCompile.tapAsync.bind(compiler.hooks.afterCompile, 'ModernizrWebpackPlugin') : compiler.plugin.bind(compiler, 'after-compile'))((compilation, cb) => {
+        return result.code;
+    }
 
-    var buildOptions = assign({}, self.options);
+    /**
+    * Copied from html-webpack-plugin
+    * @param {Object} compilation
+    * @param {string} filename
+    * @returns {string} Webpack public path option
+    * @private
+    */
+    resolvePublicPath(compilation, filename) {
+        let publicPath = typeof compilation.options.output.publicPath !== 'undefined' ?
+            compilation.getAssetPath(compilation.outputOptions.publicPath, {}) :
+            path.relative(path.dirname(filename), '.');
 
-    build(buildOptions, function (output) {
-      if (buildOptions.minify) {
-        output = self.minifySource(output, buildOptions.minify);
-      }
-      self.modernizrOutput = output;
-      var publicPath = self.resolvePublicPath(compilation, buildOptions.filename);
-      var filename = buildOptions.filename;
-      if (/\[hash\]/.test(buildOptions.filename)) {
-        self.oFilename = filename.replace(/\[hash\]/, compilation.hash);
-        filename = filename.replace(/\[hash\]/, '');
-      } else if (/\[chunkhash\]/.test(buildOptions.filename)) {
-        self.oFilename = filename.replace(/\[chunkhash\]/, self.createHash(output,
-          compiler.options.output.hashDigestLength));
-        filename = filename.replace(/\[chunkhash\]/, '');
-      } else {
-        self.oFilename = filename;
-      }
-      var plugins = [], plugin = buildOptions.htmlWebpackPlugin;
-      var filterFunct = function (plugin, error) {
-        if (self.validatePlugin(plugin)) {
-          return true;
+        if (publicPath.length && publicPath.substr(-1, 1) !== '/') {
+            publicPath = path.join(url.resolve(publicPath + '/', '.'), '/');
         }
-        if (typeof error === 'boolean' && error) {
-          compilation.errors.push(new Error('Unable to inject into html-webpack-plugin instance.\n' +
-            'Please log issue at https://github.com/alexpalombaro/modernizr-webpack-plugin/issues.'));
+
+        return publicPath
+    }
+
+    createHash(output, length) {
+        const hash = require('crypto').createHash('md5');
+        hash.update(output);
+        return hash.digest('hex').substr(0, length);
+    }
+
+    createOutputPath(oFilename, publicPath, hash) {
+        let result = oFilename;
+
+        if (publicPath) {
+            result = publicPath + oFilename;
         }
-      };
-      switch (typeof plugin) {
-        case 'array':
-          plugins = plugin.filter(function (plugin) {
-            return filterFunct(plugin, true);
-          });
-          break;
-        case 'object':
-          if (filterFunct(plugin, true)) {
-            plugins.push(plugin);
-          }
-          break;
-        case 'boolean':
-          plugins = plugin ? compiler.options.plugins.filter(filterFunct) : [];
-          break;
-      }
-      plugins.forEach(function (plugin) {
-        var filePath = self.createOutputPath(self.oFilename, publicPath,
-          plugin.options.hash ? compilation.hash : null);
-        self.htmlWebpackPluginInject(plugin, path.basename(filename, '.js'), filePath,
-          output.length, buildOptions.noChunk)
-      });
-      cb();
-    })
-  });
+        if (hash) {
+            result = result + (result.indexOf('?') === -1 ? '?' : '&') + hash;
+        }
 
-  (compiler.hooks ? compiler.hooks.emit.tapAsync.bind(compiler.hooks.emit, 'ModernizrWebpackPlugin') : compiler.plugin.bind(compiler, 'emit'))((compilation, cb) => {
-    var source = new ConcatSource();
+        return result;
+    }
 
-    source.add(self.modernizrOutput);
+    validatePlugin(plugin) {
+        return !(
+            typeof plugin !== 'object' 
+            ||  plugin.constructor.name !== 'HtmlWebpackPlugin'
+            ||  plugin.constructor.version < 5
+        );
+    }
 
-    var filename = self.oFilename;
-    compilation.assets[filename] = new CachedSource(source);
+    getOutputFilename(
+        buildOptions,
+        filehash,
+        compilation
+    ) {
+        const filename = buildOptions.filename;
 
-    cb();
-  });
-};
+        if (/\[hash\]/.test(buildOptions.filename)) {
+            return filename.replace(/\[hash\]/, compilation.hash);
+            // filename = filename.replace(/\[hash\]/, '');
+        } else if (/\[chunkhash\]/.test(buildOptions.filename)) {
+            return filename.replace(/\[chunkhash\]/, fileHash);
+        } else {
+            return filename;
+        }
+    }
+
+    apply(compiler) {
+        const hooks = compiler.hooks;
+
+        hooks.make.tapPromise('ModernizrWebpackPlugin', (compilation) => {
+            const buildOptions = Object.assign({}, this.options);
+
+            return new Promise((resolve) => {
+                build(buildOptions, (output) => {
+                    if (buildOptions.minify) {
+                        output = this.minifySource(output, buildOptions.minify);
+                    }
+
+                    const outputHash = this.createHash(
+                        output,
+                        compiler.options.output.hashDigestLength
+                    );
+                    const rawModernizrSource = new webpack.sources.RawSource(
+                        output,
+                        true
+                    );
+
+                    let plugins = [],
+                        plugin = buildOptions.htmlWebpackPlugin;
+                    const filterFunct = (plugin, error) => {
+                        if (this.validatePlugin(plugin)) {
+                        return true;
+                        }
+                        if (typeof error === 'boolean' && error) {
+                        compilation.errors.push(new Error('Unable to inject into html-webpack-plugin instance.\n' +
+                            'Please log issue at https://github.com/alexpalombaro/modernizr-webpack-plugin/issues.'));
+                        }
+                    };
+                    switch (typeof plugin) {
+                        case 'array':
+                        plugins = plugin.filter((plugin) => {
+                            return filterFunct(plugin, true);
+                        });
+                        break;
+                        case 'object':
+                        if (filterFunct(plugin, true)) {
+                            plugins.push(plugin);
+                        }
+                        break;
+                        case 'boolean':
+                        plugins = plugin ? compiler.options.plugins.filter(filterFunct) : [];
+                        break;
+                    }
+                    plugins.forEach((plugin) => {
+                        this.htmlWebpackPluginAddHtmlAsset(
+                            plugin,
+                            buildOptions,
+                            compilation,
+                            outputHash,
+                            rawModernizrSource
+                        );
+
+                        this.htmlWebpackPluginInjectScriptTag(
+                            plugin,
+                            buildOptions,
+                            compilation,
+                            outputHash
+                        );
+                    });
+                    resolve();
+                });
+            });
+        });
+
+    }
+}
 
 module.exports = ModernizrPlugin;

@@ -1,21 +1,21 @@
-var Config = require('karma/lib/config').Config;
-var Server = require('karma').Server;
+const Config = require('karma/lib/config').Config;
+const Server = require('karma').Server;
 
-var ModernizrWebpackPlugin = require('./index');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
+const ModernizrWebpackPlugin = require('./index');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-var createConfig = require('./karma.conf');
-var karmaConfig = createConfig(new Config());
+const createConfig = require('./karma.conf');
+const karmaConfig = createConfig(new Config());
 
-var path = require('path');
-var del = require('del');
+const path = require('path');
+const del = require('del');
 
-var OUTPUT_PATH = path.resolve(__dirname, 'temp');
+const OUTPUT_PATH = path.resolve(__dirname, 'temp');
 
 del(OUTPUT_PATH);
 
-var webpack = require('webpack');
-var webpackConfig = {
+const webpack = require('webpack');
+const webpackConfig = {
   context: __dirname,
   entry: {
     'entry-bundle': './tests/entry.js'
@@ -33,9 +33,9 @@ var webpackConfig = {
 };
 
 function executeTestingServer(source) {
-  var config = Object.assign({}, karmaConfig);
+  const config = Object.assign({}, karmaConfig);
   config.files.push(source);
-  var server = new Server(config);
+  const server = new Server(config);
   server.start();
 }
 
