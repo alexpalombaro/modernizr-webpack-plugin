@@ -33,7 +33,7 @@
     "modernizr": "^3.5.0",
     "uglify-js": "^2.4.24",
     "webpack-core": "^0.6.7",
-    "html-webpack-plugin": "^4.5.0"
+    "html-webpack-plugin": "^5.5.0"
   },
   "devDependencies": {
     "bluebird": "^2.10.2",
