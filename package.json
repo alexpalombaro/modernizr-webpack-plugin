@@ -45,11 +45,11 @@
     "karma-mocha": "^0.2.0",
     "karma-phantomjs-launcher": "^0.2.1",
     "karma-sinon-chai": "^1.1.0",
-    "karma-webpack": "^3.0",
+    "karma-webpack": "^5.0",
     "mocha": "^2.3.3",
     "phantomjs": "^1.9.20",
     "sinon": "^2.2.0",
     "sinon-chai": "^2.10.0",
-    "webpack": "^4.0"
+    "webpack": "^5.0"
   }
 }

@@ -15,7 +15,7 @@ function makeDefaultConfig() {
     files: [KARMA_ENTRY],
     singleRun: !debug,
     autoWatch: debug,
-    frameworks: ['mocha', 'sinon-chai'],
+    frameworks: ['mocha', 'sinon-chai', 'webpack'],
     preprocessors: preprocessors,
     reporters: ['progress'],
     browsers: (debug ? ['PhantomJS', 'Chrome'] : ['PhantomJS']),

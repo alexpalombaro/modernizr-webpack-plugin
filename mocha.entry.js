@@ -30,6 +30,8 @@ var webpackConfigBase = {
 describe('[ModernizrWebpackPlugin] Build Tests', function () {
 
   beforeEach(function (done) {
+    this.timeout(5000);
+
     // reset config to base status
     webpackConfig = assign({}, webpackConfigBase);
     del(OUTPUT_PATH).then(function () {
@@ -38,6 +40,8 @@ describe('[ModernizrWebpackPlugin] Build Tests', function () {
   });
 
   it('should output a hashed filename', function (done) {
+    this.timeout(10000);
+
     var config = {filename: 'testing[hash]'};
     webpackConfig.plugins = [
       new HtmlWebpackPlugin(),
@@ -83,9 +87,9 @@ describe('[ModernizrWebpackPlugin] Build Tests', function () {
     webpackConfig.output.publicPath = 'public/';
     webpack(webpackConfig).then(function () {
       fs.readFileAsync(path.resolve(OUTPUT_PATH, 'index.html'), 'utf8').then(function (data) {
-        expect(/<script\ssrc="public\/modernizr-bundle.js">/.test(data)).to.be.true;
+        expect(/<script(.*)src="public\/entry-bundle.js">/.test(data)).to.be.true;
         done();
-      })
+      }).catch(function (error) { });
     }).catch(done);
   });
 
