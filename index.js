@@ -66,9 +66,11 @@ ModernizrPlugin.prototype.minifySource = function (source, options) {
  * @private
  */
 ModernizrPlugin.prototype.resolvePublicPath = function (compilation, filename) {
-  var publicPath = typeof compilation.options.output.publicPath !== 'undefined' ?
-    compilation.getAssetPath(compilation.outputOptions.publicPath, {}) :
-    path.relative(path.dirname(filename), '.');
+  var publicPath = (
+    typeof compilation.options.output.publicPath !== 'undefined' &&
+    typeof compilation.getAssetPath === 'function'
+    ) ? compilation.getAssetPath(compilation.outputOptions.publicPath, {})
+      : path.relative(path.dirname(filename), '.');
 
   if (publicPath.length && publicPath.substr(-1, 1) !== '/') {
     publicPath = path.join(url.resolve(publicPath + '/', '.'), '/');
