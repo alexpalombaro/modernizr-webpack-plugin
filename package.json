@@ -47,7 +47,7 @@
     "karma-phantomjs-launcher": "^0.2.1",
     "karma-sinon-chai": "^1.1.0",
     "karma-webpack": "^1.7.0",
-    "mocha": "^2.3.3",
+    "mocha": "^10.1.0",
     "phantomjs": "^1.9.20",
     "sinon": "^2.2.0",
     "sinon-chai": "^2.10.0",
